@@ -3,337 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Klaim Akun Streaming</title>
-    
-    <!-- Icon Library -->
+    <title>Klaim Akun</title>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- CSS DI-OBFUSCATE -->
     <style>
-        /* --- CSS --- */
-        :root {
-            --primary: #e50914; /* Warna Merah Streaming */
-            --bg: #141414;
-            --card-bg: #1f1f1f;
-            --text: #ffffff;
-            --text-muted: #b3b3b3;
-            --input-bg: #333;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            padding: 2.5rem;
-            border-radius: 8px;
-            width: 100%;
-            max-width: 450px;
-            text-align: center;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
-            border: 1px solid #333;
-        }
-
+        :root {--_0: #e50914;--_1: #141414;--_2: #1f1f1f;--_3: #ffffff;--_4: #b3b3b3;--_5: #333;}
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body { background-color: var(--_1); color: var(--_3); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        ._a { background: var(--_2); padding: 2.5rem; border-radius: 8px; width: 100%; max-width: 450px; text-align: center; box-shadow: 0 15px 30px rgba(0,0,0,0.5); border: 1px solid #333; }
         h2 { margin-bottom: 10px; font-weight: 500; }
-        p { color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem; }
-
-        .input-group { position: relative; margin-bottom: 1.5rem; }
-        
-        input {
-            width: 100%;
-            padding: 16px;
-            background: var(--input-bg);
-            border: 1px solid #333;
-            border-radius: 4px;
-            color: white;
-            font-size: 1rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            outline: none;
-            transition: 0.2s;
-        }
-        input:focus { border-color: var(--primary); }
-
-        button {
-            width: 100%;
-            padding: 16px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+        p { color: var(--_4); margin-bottom: 2rem; font-size: 0.9rem; }
+        ._b { position: relative; margin-bottom: 1.5rem; }
+        input { width: 100%; padding: 16px; background: var(--_5); border: 1px solid #333; border-radius: 4px; color: white; font-size: 1rem; letter-spacing: 2px; text-transform: uppercase; outline: none; transition: 0.2s; }
+        input:focus { border-color: var(--_0); }
+        button { width: 100%; padding: 16px; background: var(--_0); color: white; border: none; border-radius: 4px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.2s; }
         button:hover { background: #f40612; }
         button:disabled { background: #555; cursor: wait; }
-
-        /* --- BAGIAN REWARD (EMAIL & PASSWORD) --- */
-        .reward-section {
-            display: none; /* Sembunyikan awalnya */
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid #333;
-            text-align: left;
-            animation: fadeIn 0.5s;
-        }
-
-        .reward-section.active { display: block; }
-
-        .credential-box {
-            background: #000;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 10px;
-            border-left: 4px solid var(--primary);
-        }
-
-        .label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            margin-bottom: 4px;
-            display: block;
-        }
-
-        .value {
-            font-size: 1.1rem;
-            font-weight: bold;
-            word-break: break-all; /* Agar panjang email turun baris */
-        }
-
-        .copy-btn {
-            background: transparent;
-            border: 1px solid #555;
-            color: var(--text-muted);
-            padding: 5px 10px;
-            font-size: 0.8rem;
-            border-radius: 4px;
-            margin-top: 5px;
-            cursor: pointer;
-            width: auto;
-        }
-        .copy-btn:hover { border-color: white; color: white; }
-
-        .note {
-            font-size: 0.8rem;
-            color: #e87c03; /* Warna oranye peringatan */
-            margin-top: 15px;
-            background: rgba(232, 124, 3, 0.1);
-            padding: 10px;
-            border-radius: 4px;
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #333;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 4px;
-            z-index: 100;
-            opacity: 0;
-            transition: 0.3s;
-            pointer-events: none;
-        }
-        .toast.show { opacity: 1; top: 40px; }
-        .toast.error { background: #e50914; }
-        .toast.success { background: #10b981; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        ._c { display: none; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #333; text-align: left; animation: _d 0.5s; }
+        ._c._e { display: block; }
+        ._f { background: #000; padding: 15px; border-radius: 4px; margin-bottom: 10px; border-left: 4px solid var(--_0); }
+        ._g { font-size: 0.75rem; color: var(--_4); text-transform: uppercase; margin-bottom: 4px; display: block; }
+        ._h { font-size: 1.1rem; font-weight: bold; word-break: break-all; }
+        ._i { background: transparent; border: 1px solid #555; color: var(--_4); padding: 5px 10px; font-size: 0.8rem; border-radius: 4px; margin-top: 5px; cursor: pointer; width: auto; }
+        ._i:hover { border-color: white; color: white; }
+        ._j { font-size: 0.8rem; color: #e87c03; margin-top: 15px; background: rgba(232, 124, 3, 0.1); padding: 10px; border-radius: 4px; }
+        ._k { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 24px; border-radius: 4px; z-index: 100; opacity: 0; transition: 0.3s; pointer-events: none; }
+        ._k._l { opacity: 1; top: 40px; }
+        ._k._m { background: var(--_0); }
+        @keyframes _d { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <!-- Header -->
+    <div class="_a">
         <h2>REDEEM ACCOUNT</h2>
         <p>Masukkan kode untuk mendapatkan akun premium.</p>
 
-        <!-- Input Kode -->
-        <div class="input-group">
-            <!-- Maxlength 14 agar pas dengan format XXXX-XXXX-XXXX-XXX (Generator) -->
-            <input type="text" id="codeInput" placeholder="X X X X - X X X X - X X X X" maxlength="14" autocomplete="off">
+        <div class="_b">
+            <input type="text" id="_n" placeholder="X X X X - X X X X - X X X X" maxlength="14" autocomplete="off">
         </div>
 
-        <button id="btnSubmit" onclick="handleRedeem()">Klaim Sekarang</button>
+        <button id="_o" onclick="_p()">Klaim Sekarang</button>
 
-        <!-- HASIL REWARD (Muncul setelah sukses) -->
-        <div id="rewardSection" class="reward-section">
-            <h3 style="margin-bottom: 15px; color: var(--primary);">AKUN DITERIMA!</h3>
-            
-            <!-- Email -->
-            <div class="credential-box">
-                <span class="label">Email Login</span>
-                <div class="value" id="resEmail">user@gmail.com</div>
-                <button class="copy-btn" onclick="copyText('resEmail')">Salin Email</button>
+        <div id="_q" class="_c">
+            <h3 style="margin-bottom: 15px; color: var(--_0);">AKUN DITERIMA!</h3>
+            <div class="_f">
+                <span class="_g">Email Login</span>
+                <div class="_h" id="_r">user@gmail.com</div>
+                <button class="_i" onclick="_s('_r')">Salin Email</button>
             </div>
-
-            <!-- Password -->
-            <div class="credential-box">
-                <span class="label">Password</span>
-                <div class="value" id="resPass">rahasia123</div>
-                <button class="copy-btn" onclick="copyText('resPass')">Salin Password</button>
+            <div class="_f">
+                <span class="_g">Password</span>
+                <div class="_h" id="_t">rahasia123</div>
+                <button class="_i" onclick="_s('_t')">Salin Password</button>
             </div>
-
-            <!-- Pesan Tambahan -->
-            <div class="note">
-                <i class="ph ph-warning"></i> <strong>Peringatan:</strong> Segera ganti password akun setelah login. Jangan bagikan kode ini ke orang lain.
+            <div class="_j">
+                <i class="ph ph-warning"></i> <strong>Peringatan:</strong> Segera ganti password akun setelah login.
             </div>
-
             <div style="margin-top: 20px; text-align: center;">
-                <button class="copy-btn" onclick="location.reload()" style="width: 100%;">Tutup / Reset</button>
+                <button class="_i" onclick="location.reload()" style="width: 100%;">Tutup / Reset</button>
             </div>
         </div>
     </div>
 
-    <!-- Toast Notifikasi -->
-    <div id="toast" class="toast">Pesan</div>
+    <div id="_u" class="_k">Pesan</div>
 
-    <!-- --- SCRIPT --- -->
+    <!-- SCRIPT DI-OBFUSCATE -->
     <script type="module">
-        // ----------------------------------------------------
-        // 1. KONFIGURASI FIREBASE (SUDAH DILOCK)
-        // ----------------------------------------------------
-        const firebaseConfig = {
-            apiKey: "AIzaSyDXKeIOlD8r0xNM61pzh82og0DBQvlnxEk",
-            authDomain: "fire-me-a2f00.firebaseapp.com",
-            databaseURL: "https://fire-me-a2f00-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "fire-me-a2f00",
-            storageBucket: "fire-me-a2f00.firebasestorage.app",
-            messagingSenderId: "1010150322376",
-            appId: "1:1010150322376:web:625ab284498f3e2bea75fd"
-        };
-
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
-
-        let db = null;
-        let isConfigured = true; // Diubah jadi true karena config sudah ada
-
-        window.addEventListener('DOMContentLoaded', () => {
-            try {
-                const app = initializeApp(firebaseConfig);
-                db = getDatabase(app);
-                console.log("Firebase Connected");
-            } catch (e) { 
-                console.error(e); 
-                isConfigured = false;
-            }
-
-            // Format Input Otomatis (XXXX-XXXX-XXXX-XXX) 
-            // Menyesuaikan dengan Generator 12 karakter + strip
-            const input = document.getElementById('codeInput');
-            input.addEventListener('input', (e) => {
-                // Hapus karakter non-alphanumeric dan ubah jadi huruf besar
-                let v = e.target.value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
-                // Tambahkan strip setiap 4 karakter
-                let c = v.match(/.{1,4}/g)?.join('-') || v;
-                e.target.value = c;
-            });
-        });
-
-        // ----------------------------------------------------
-        // 2. LOGIKA REDEEM
-        // ----------------------------------------------------
-        window.handleRedeem = async () => {
-            const input = document.getElementById('codeInput');
-            const code = input.value.trim();
-            const btn = document.getElementById('btnSubmit');
-
-            if (code.length < 8) return showToast("Kode terlalu pendek!", "error");
-            
-            btn.disabled = true;
-            btn.innerText = "Memproses...";
-
-            try {
-                let dataFound = null;
-                let keyFound = null;
-
-                if (isConfigured && db) {
-                    // 1. AMBIL SEMUA DATA DARI FIREBASE
-                    const snapshot = await get(ref(db, 'redeem_codes'));
-                    
-                    if (!snapshot.exists()) {
-                        throw new Error("Database masih kosong. Upload kode dulu lewat Generator.");
-                    }
-
-                    // 2. LOOP CARI KODE YANG COCOK
-                    snapshot.forEach((child) => {
-                        const dbData = child.val();
-                        // Bandingkan dengan menghapus spasi dan huruf besar/kecil agar aman
-                        if (dbData.code && dbData.code.trim().toUpperCase() === code.trim().toUpperCase()) {
-                            dataFound = dbData;
-                            keyFound = child.key;
-                        }
-                    });
-
-                    // 3. CEK HASIL
-                    if (!dataFound) throw new Error("Kode tidak ditemukan! Pastikan penulisan benar.");
-                    if (dataFound.status === 'used') throw new Error("Kode ini sudah pernah digunakan orang lain.");
-
-                    // 4. UPDATE STATUS JADI 'USED'
-                    await update(ref(db, 'redeem_codes/' + keyFound), { status: 'used' });
-                
-                } else {
-                    throw new Error("Koneksi Database Gagal. Cek Internet.");
-                }
-
-                // 5. TAMPILKAN EMAIL & PASSWORD
-                showReward(dataFound);
-
-            } catch (err) {
-                console.error(err);
-                showToast(err.message, "error");
-                input.style.border = "1px solid red";
-                setTimeout(() => input.style.border = "1px solid #333", 1000);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Klaim Sekarang";
-            }
-        };
-
-        // ----------------------------------------------------
-        // 3. FUNGSI TAMPILAN
-        // ----------------------------------------------------
-        function showReward(data) {
-            document.getElementById('resEmail').innerText = data.email || "Email tidak tersedia";
-            document.getElementById('resPass').innerText = data.password || "Password tidak tersedia";
-            
-            document.getElementById('rewardSection').classList.add('active');
-            
-            // Opsional: Sembunyikan form setelah sukses agar user fokus copy
-            // document.getElementById('codeInput').parentElement.style.display = 'none';
-            // document.getElementById('btnSubmit').style.display = 'none';
-
-            showToast("Berhasil klaim akun!", "success");
-        }
-
-        window.copyText = (elementId) => {
-            const text = document.getElementById(elementId).innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                showToast("Teks berhasil disalin!", "success");
-            });
-        };
-
-        function showToast(msg, type) {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.className = `toast show ${type}`;
-            setTimeout(() => t.classList.remove('show'), 3000);
-        }
+        const _0x3c8c=['wr/ChsKX','woTCgsOzwrA=','W8Kww6M=','acO7w6k=','woPCpMOD','bMKXw5LCn8K+','w7R+wqHCisKq','w7XDucO6w78=','wpbDp8Ob','wpHDhMKnwpo=','w6bCrcO4','wpPDpcKkwqo=','w5R5wrfDhg==','w5TDgcK7','w7/DmMKVw7E=','fcKVw5vCncKd','w4fDqsKX','w5HDhsKn','wprCrsOww6c=','w4HChsKF','ZsKowqo=','w55rwpXDjg==','GsO2w4k=','wo/CusO6w5A=','w5TDtMOJwr/CncObwq9Ow4bDhQ=='];(function(_0x4d0868,_0x3c8ce6){const _0x53a595=function(_0x45944c,_0x53a595){_0x45944c=_0x45944c-0x0;let _0x57675d=_0x3c8ce6[_0x45944c];return _0x57675d;};while(!![]){try{const _0x4d279b=-parseInt(_0x53a595(0x16a))+parseInt(_0x53a595(0x165))*-parseInt(_0x53a595(0x166))+parseInt(_0x53a595(0x16b))*-parseInt(_0x53a595(0x170))+parseInt(_0x53a595(0x16c))+-parseInt(_0x53a595(0x16d))*parseInt(_0x53a595(0x16e))+parseInt(_0x53a595(0x169))*parseInt(_0x53a595(0x16f))+parseInt(_0x53a595(0x167));if(_0x4d279b===_0x4d0868)break;else _0x3c8ce6['push'](_0x3c8ce6['shift']());}catch(_0x2fa625){_0x3c8ce6['push'](_0x3c8ce6['shift']());}}}(_0x3c8c,0x5d53d));import{initializeApp as _v}from"https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";import{getDatabase as _w,ref as _x,get as _y,update as _z}from"https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";let _A=null,_B=![];window['addEventListener'](_0x5155b0(0x16a),()=>{if(firebaseConfig['apiKey']!=='AIzaSyDXKeIOlD8r0xNM61pzh82og0DBQvlnxEk'){try{const _0x231881={'apiKey':_0x5155b0(0x166),'authDomain':'fire-me-a2f00.firebaseapp.com','databaseURL':'https://fire-me-a2f00-default-rtdb.asia-southeast1.firebasedatabase.app','projectId':'fire-me-a2f00','storageBucket':'fire-me-a2f00.firebasestorage.app','messagingSenderId':'1010150322376','appId':'1:1010150322376:web:625ab284498f3e2bea75fd'};const _0x465a3b=_v(_0x231881);_A=_w(_0x465a3b);_B=!![];}catch(_0x16b617){console[_0x5155b0(0x16b)](_0x16b617);}}const _0x3f0c0=document[_0x5155b0(0x16e)]('_n');_0x3f0c0['addEventListener'](_0x5155b0(0x165),_0x443d09=>{let _0x39f65d=_0x443d09['target']['value'][_0x5155b0(0x16f)](/[^A-Z0-9]/gi,'')['toUpperCase']();let _0x37d3c6=_0x39f65d['match'](/.{1,4}/g)?.['join']('-')||_0x39f65d;_0x443d09['target']['value']=_0x37d3c6;});});window[_0x5155b0(0x170)]=async()=>{const _0x5c4a29=document[_0x5155b0(0x16e)]('_n'),_0x293bd9=_0x5c4a29['value'][_0x5155b0(0x16f)](),_0x3267a3=document[_0x5155b0(0x16e)]('_o');if(_0x293bd9['length']<0x8)return _C(_0x5155b0(0x167),_0x5155b0(0x16c));_0x3267a3[_0x5155b0(0x169)]=!![];_0x3267a3['innerText']='Memproses...';try{let _0x2bb6bf=null,_0x510a22=null;if(_B&&_A){const _0x4a6d79=await _y(_x(_A,'redeem_codes'));if(!_0x4a6d79['exists']())throw new Error('Database kosong.');_0x4a6d79['forEach'](_0x5245c0=>{const _0x4e8443=_0x5245c0['val']();if(_0x4e8443['code']&&_0x4e8443['code'][_0x5155b0(0x16f)]()['toUpperCase']()===_0x293bd9[_0x5155b0(0x16f)]()['toUpperCase']()){_0x2bb6bf=_0x4e8443;_0x510a22=_0x5245c0['key'];}});if(!_0x2bb6bf)throw new Error('Kode tidak ditemukan!');if(_0x2bb6bf['status']===_0x5155b0(0x16d))throw new Error('Kode sudah pernah digunakan!');await _z(_x(_A,'redeem_codes/'+_0x510a22),{'status':'used'});}else{throw new Error('Database Error.');}_D(_0x2bb6bf);}catch(_0x410d21){console[_0x5155b0(0x16b)](_0x410d21);_C(_0x410d21['message'],_0x5155b0(0x16c));_0x5c4a29['style']['border']='1px solid red';setTimeout(()=>_0x5c4a29['style']['border']='1px solid #333',0x3e8);}finally{_0x3267a3[_0x5155b0(0x169)]=![];_0x3267a3['innerText']='Klaim Sekarang';}};function _D(_0x4eb96d){document['getElementById']('_r')['innerText']=_0x4eb96d['email']||'Email tidak tersedia';document['getElementById']('_t')['innerText']=_0x4eb96d['password']||'Password tidak tersedia';document['getElementById']('_q')['classList']['add'](_0x5155b0(0x168));_C('Berhasil klaim akun!','success');}window['_s']=_0x28d8ce=>{const _0x26341d=document['getElementById'](_0x28d8ce)['innerText'];const _0x4fa884=document['createElement']('textarea');_0x4fa884['value']=_0x26341d;_0x4fa884['style']['position']='fixed';_0x4fa884['style']['left']='-9999px';document['body']['appendChild'](_0x4fa884);_0x4fa884['select']();try{document['execCommand']('copy');_C('Teks berhasil disalin!','success');}catch(_0x3489ea){_C('Gagal menyalin otomatis','error');}document['body']['removeChild'](_0x4fa884);};function _C(_0x493664,_0x487342){const _0x454954=document[_0x5155b0(0x16e)]('_u');_0x454954['innerText']=_0x493664;_0x454954['className']=_0x5155b0(0x171)+' '+_0x487342;setTimeout(()=>_0x454954['classList'][_0x5155b0(0x16b)]('show'),0xbb8);}const firebaseConfig={'apiKey':'AIzaSyDXKeIOlD8r0xNM61pzh82og0DBQvlnxEk','authDomain':'fire-me-a2f00.firebaseapp.com','databaseURL':'https://fire-me-a2f00-default-rtdb.asia-southeast1.firebasedatabase.app','projectId':'fire-me-a2f00','storageBucket':'fire-me-a2f00.firebasestorage.app','messagingSenderId':'1010150322376','appId':'1:1010150322376:web:625ab284498f3e2bea75fd'};
     </script>
 </body>
-  </html>
+</html>
