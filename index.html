@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klaim Akun Streaming</title>
+    
+    <!-- Icon Library -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        /* --- CSS --- */
+        :root {
+            --primary: #e50914; /* Warna Merah Streaming */
+            --bg: #141414;
+            --card-bg: #1f1f1f;
+            --text: #ffffff;
+            --text-muted: #b3b3b3;
+            --input-bg: #333;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5);
+            border: 1px solid #333;
+        }
+
+        h2 { margin-bottom: 10px; font-weight: 500; }
+        p { color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem; }
+
+        .input-group { position: relative; margin-bottom: 1.5rem; }
+        
+        input {
+            width: 100%;
+            padding: 16px;
+            background: var(--input-bg);
+            border: 1px solid #333;
+            border-radius: 4px;
+            color: white;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            outline: none;
+            transition: 0.2s;
+        }
+        input:focus { border-color: var(--primary); }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover { background: #f40612; }
+        button:disabled { background: #555; cursor: wait; }
+
+        /* --- BAGIAN REWARD (EMAIL & PASSWORD) --- */
+        .reward-section {
+            display: none; /* Sembunyikan awalnya */
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #333;
+            text-align: left;
+            animation: fadeIn 0.5s;
+        }
+
+        .reward-section.active { display: block; }
+
+        .credential-box {
+            background: #000;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            word-break: break-all; /* Agar panjang email turun baris */
+        }
+
+        .copy-btn {
+            background: transparent;
+            border: 1px solid #555;
+            color: var(--text-muted);
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            margin-top: 5px;
+            cursor: pointer;
+            width: auto;
+        }
+        .copy-btn:hover { border-color: white; color: white; }
+
+        .note {
+            font-size: 0.8rem;
+            color: #e87c03; /* Warna oranye peringatan */
+            margin-top: 15px;
+            background: rgba(232, 124, 3, 0.1);
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            z-index: 100;
+            opacity: 0;
+            transition: 0.3s;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; top: 40px; }
+        .toast.error { background: #e50914; }
+        .toast.success { background: #10b981; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <!-- Header -->
+        <h2>REDEEM ACCOUNT</h2>
+        <p>Masukkan kode untuk mendapatkan akun premium.</p>
+
+        <!-- Input Kode -->
+        <div class="input-group">
+            <!-- Maxlength 14 agar pas dengan format XXXX-XXXX-XXXX-XXX (Generator) -->
+            <input type="text" id="codeInput" placeholder="X X X X - X X X X - X X X X" maxlength="14" autocomplete="off">
+        </div>
+
+        <button id="btnSubmit" onclick="handleRedeem()">Klaim Sekarang</button>
+
+        <!-- HASIL REWARD (Muncul setelah sukses) -->
+        <div id="rewardSection" class="reward-section">
+            <h3 style="margin-bottom: 15px; color: var(--primary);">AKUN DITERIMA!</h3>
+            
+            <!-- Email -->
+            <div class="credential-box">
+                <span class="label">Email Login</span>
+                <div class="value" id="resEmail">user@gmail.com</div>
+                <button class="copy-btn" onclick="copyText('resEmail')">Salin Email</button>
+            </div>
+
+            <!-- Password -->
+            <div class="credential-box">
+                <span class="label">Password</span>
+                <div class="value" id="resPass">rahasia123</div>
+                <button class="copy-btn" onclick="copyText('resPass')">Salin Password</button>
+            </div>
+
+            <!-- Pesan Tambahan -->
+            <div class="note">
+                <i class="ph ph-warning"></i> <strong>Peringatan:</strong> Segera ganti password akun setelah login. Jangan bagikan kode ini ke orang lain.
+            </div>
+
+            <div style="margin-top: 20px; text-align: center;">
+                <button class="copy-btn" onclick="location.reload()" style="width: 100%;">Tutup / Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifikasi -->
+    <div id="toast" class="toast">Pesan</div>
+
+    <!-- --- SCRIPT --- -->
+    <script type="module">
+        // ----------------------------------------------------
+        // 1. KONFIGURASI FIREBASE (SUDAH DILOCK)
+        // ----------------------------------------------------
+        const firebaseConfig = {
+            apiKey: "AIzaSyDXKeIOlD8r0xNM61pzh82og0DBQvlnxEk",
+            authDomain: "fire-me-a2f00.firebaseapp.com",
+            databaseURL: "https://fire-me-a2f00-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "fire-me-a2f00",
+            storageBucket: "fire-me-a2f00.firebasestorage.app",
+            messagingSenderId: "1010150322376",
+            appId: "1:1010150322376:web:625ab284498f3e2bea75fd"
+        };
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+        let db = null;
+        let isConfigured = true; // Diubah jadi true karena config sudah ada
+
+        window.addEventListener('DOMContentLoaded', () => {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getDatabase(app);
+                console.log("Firebase Connected");
+            } catch (e) { 
+                console.error(e); 
+                isConfigured = false;
+            }
+
+            // Format Input Otomatis (XXXX-XXXX-XXXX-XXX) 
+            // Menyesuaikan dengan Generator 12 karakter + strip
+            const input = document.getElementById('codeInput');
+            input.addEventListener('input', (e) => {
+                // Hapus karakter non-alphanumeric dan ubah jadi huruf besar
+                let v = e.target.value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+                // Tambahkan strip setiap 4 karakter
+                let c = v.match(/.{1,4}/g)?.join('-') || v;
+                e.target.value = c;
+            });
+        });
+
+        // ----------------------------------------------------
+        // 2. LOGIKA REDEEM
+        // ----------------------------------------------------
+        window.handleRedeem = async () => {
+            const input = document.getElementById('codeInput');
+            const code = input.value.trim();
+            const btn = document.getElementById('btnSubmit');
+
+            if (code.length < 8) return showToast("Kode terlalu pendek!", "error");
+            
+            btn.disabled = true;
+            btn.innerText = "Memproses...";
+
+            try {
+                let dataFound = null;
+                let keyFound = null;
+
+                if (isConfigured && db) {
+                    // 1. AMBIL SEMUA DATA DARI FIREBASE
+                    const snapshot = await get(ref(db, 'redeem_codes'));
+                    
+                    if (!snapshot.exists()) {
+                        throw new Error("Database masih kosong. Upload kode dulu lewat Generator.");
+                    }
+
+                    // 2. LOOP CARI KODE YANG COCOK
+                    snapshot.forEach((child) => {
+                        const dbData = child.val();
+                        // Bandingkan dengan menghapus spasi dan huruf besar/kecil agar aman
+                        if (dbData.code && dbData.code.trim().toUpperCase() === code.trim().toUpperCase()) {
+                            dataFound = dbData;
+                            keyFound = child.key;
+                        }
+                    });
+
+                    // 3. CEK HASIL
+                    if (!dataFound) throw new Error("Kode tidak ditemukan! Pastikan penulisan benar.");
+                    if (dataFound.status === 'used') throw new Error("Kode ini sudah pernah digunakan orang lain.");
+
+                    // 4. UPDATE STATUS JADI 'USED'
+                    await update(ref(db, 'redeem_codes/' + keyFound), { status: 'used' });
+                
+                } else {
+                    throw new Error("Koneksi Database Gagal. Cek Internet.");
+                }
+
+                // 5. TAMPILKAN EMAIL & PASSWORD
+                showReward(dataFound);
+
+            } catch (err) {
+                console.error(err);
+                showToast(err.message, "error");
+                input.style.border = "1px solid red";
+                setTimeout(() => input.style.border = "1px solid #333", 1000);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Klaim Sekarang";
+            }
+        };
+
+        // ----------------------------------------------------
+        // 3. FUNGSI TAMPILAN
+        // ----------------------------------------------------
+        function showReward(data) {
+            document.getElementById('resEmail').innerText = data.email || "Email tidak tersedia";
+            document.getElementById('resPass').innerText = data.password || "Password tidak tersedia";
+            
+            document.getElementById('rewardSection').classList.add('active');
+            
+            // Opsional: Sembunyikan form setelah sukses agar user fokus copy
+            // document.getElementById('codeInput').parentElement.style.display = 'none';
+            // document.getElementById('btnSubmit').style.display = 'none';
+
+            showToast("Berhasil klaim akun!", "success");
+        }
+
+        window.copyText = (elementId) => {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Teks berhasil disalin!", "success");
+            });
+        };
+
+        function showToast(msg, type) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.className = `toast show ${type}`;
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+  </html>
