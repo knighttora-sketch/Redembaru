@@ -150,6 +150,7 @@
         }
         .toast.show { opacity: 1; top: 40px; }
         .toast.error { background: #e50914; }
+        .toast.success { background: #10b981; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -158,12 +159,13 @@
 
     <div class="card">
         <!-- Header -->
-        <h2>HBOMAX REDEEM</h2>
+        <h2>REDEEM ACCOUNT</h2>
         <p>Masukkan kode untuk mendapatkan akun premium.</p>
 
         <!-- Input Kode -->
         <div class="input-group">
-            <input type="text" id="codeInput" placeholder="X X X X - X X X X - X X X X" maxlength="14">
+            <!-- Maxlength 14 agar pas dengan format XXXX-XXXX-XXXX-XXX (Generator) -->
+            <input type="text" id="codeInput" placeholder="X X X X - X X X X - X X X X" maxlength="14" autocomplete="off">
         </div>
 
         <button id="btnSubmit" onclick="handleRedeem()">Klaim Sekarang</button>
@@ -203,7 +205,7 @@
     <!-- --- SCRIPT --- -->
     <script type="module">
         // ----------------------------------------------------
-        // 1. KONFIGURASI FIREBASE
+        // 1. KONFIGURASI FIREBASE (SUDAH DILOCK)
         // ----------------------------------------------------
         const firebaseConfig = {
             apiKey: "AIzaSyDXKeIOlD8r0xNM61pzh82og0DBQvlnxEk",
@@ -219,21 +221,25 @@
         import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
 
         let db = null;
-        let isConfigured = false;
+        let isConfigured = true; // Diubah jadi true karena config sudah ada
 
         window.addEventListener('DOMContentLoaded', () => {
-            if (firebaseConfig.apiKey !== "AIzaSyDXKeIOlD8r0xNM61pzh82og0DBQvlnxEk") {
-                try {
-                    const app = initializeApp(firebaseConfig);
-                    db = getDatabase(app);
-                    isConfigured = true;
-                } catch (e) { console.error(e); }
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getDatabase(app);
+                console.log("Firebase Connected");
+            } catch (e) { 
+                console.error(e); 
+                isConfigured = false;
             }
 
-            // Format Input (XXXX-XXXX)
+            // Format Input Otomatis (XXXX-XXXX-XXXX-XXX) 
+            // Menyesuaikan dengan Generator 12 karakter + strip
             const input = document.getElementById('codeInput');
             input.addEventListener('input', (e) => {
+                // Hapus karakter non-alphanumeric dan ubah jadi huruf besar
                 let v = e.target.value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+                // Tambahkan strip setiap 4 karakter
                 let c = v.match(/.{1,4}/g)?.join('-') || v;
                 e.target.value = c;
             });
@@ -247,7 +253,7 @@
             const code = input.value.trim();
             const btn = document.getElementById('btnSubmit');
 
-            if (code.length < 8) return showToast("Masukkan kode yang valid!", "error");
+            if (code.length < 8) return showToast("Kode terlalu pendek!", "error");
             
             btn.disabled = true;
             btn.innerText = "Memproses...";
@@ -257,41 +263,39 @@
                 let keyFound = null;
 
                 if (isConfigured && db) {
-                    // AMBIL DARI FIREBASE
+                    // 1. AMBIL SEMUA DATA DARI FIREBASE
                     const snapshot = await get(ref(db, 'redeem_codes'));
-                    if (!snapshot.exists()) throw new Error("Database kosong.");
+                    
+                    if (!snapshot.exists()) {
+                        throw new Error("Database masih kosong. Upload kode dulu lewat Generator.");
+                    }
 
+                    // 2. LOOP CARI KODE YANG COCOK
                     snapshot.forEach((child) => {
-                        if (child.val().code === code) {
-                            dataFound = child.val();
+                        const dbData = child.val();
+                        // Bandingkan dengan menghapus spasi dan huruf besar/kecil agar aman
+                        if (dbData.code && dbData.code.trim().toUpperCase() === code.trim().toUpperCase()) {
+                            dataFound = dbData;
                             keyFound = child.key;
                         }
                     });
 
-                    if (!dataFound) throw new Error("Kode tidak ditemukan!");
-                    if (dataFound.status === 'used') throw new Error("Kode sudah pernah digunakan!");
+                    // 3. CEK HASIL
+                    if (!dataFound) throw new Error("Kode tidak ditemukan! Pastikan penulisan benar.");
+                    if (dataFound.status === 'used') throw new Error("Kode ini sudah pernah digunakan orang lain.");
 
-                    // UPDATE STATUS JADI USED
+                    // 4. UPDATE STATUS JADI 'USED'
                     await update(ref(db, 'redeem_codes/' + keyFound), { status: 'used' });
                 
                 } else {
-                    // SIMULASI (Jika API Key belum diisi)
-                    await new Promise(r => setTimeout(r, 1000));
-                    // Data Palsu untuk Tes
-                    if (code === "TEST-1234-5678") {
-                        dataFound = {
-                            email: "netflixgratis@gmail.com",
-                            password: "premium2024"
-                        };
-                    } else {
-                        throw new Error("Kode Salah! (Gunakan TEST-1234-5678 untuk tes)");
-                    }
+                    throw new Error("Koneksi Database Gagal. Cek Internet.");
                 }
 
-                // TAMPILKAN HASIL
+                // 5. TAMPILKAN EMAIL & PASSWORD
                 showReward(dataFound);
 
             } catch (err) {
+                console.error(err);
                 showToast(err.message, "error");
                 input.style.border = "1px solid red";
                 setTimeout(() => input.style.border = "1px solid #333", 1000);
@@ -305,14 +309,12 @@
         // 3. FUNGSI TAMPILAN
         // ----------------------------------------------------
         function showReward(data) {
-            // Masukkan data ke kolom HTML
-            document.getElementById('resEmail').innerText = data.email || "Tidak ada data email";
-            document.getElementById('resPass').innerText = data.password || "Tidak ada data password";
+            document.getElementById('resEmail').innerText = data.email || "Email tidak tersedia";
+            document.getElementById('resPass').innerText = data.password || "Password tidak tersedia";
             
-            // Tampilkan bagian reward
             document.getElementById('rewardSection').classList.add('active');
             
-            // Sembunyikan input & tombol agar user fokus ke akun (Opsional)
+            // Opsional: Sembunyikan form setelah sukses agar user fokus copy
             // document.getElementById('codeInput').parentElement.style.display = 'none';
             // document.getElementById('btnSubmit').style.display = 'none';
 
@@ -322,7 +324,7 @@
         window.copyText = (elementId) => {
             const text = document.getElementById(elementId).innerText;
             navigator.clipboard.writeText(text).then(() => {
-                showToast("Teks disalin!", "success");
+                showToast("Teks berhasil disalin!", "success");
             });
         };
 
